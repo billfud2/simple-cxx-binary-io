@@ -14,14 +14,12 @@ namespace {
     enum Throwing { throwing, non_throwing };
 
     // Base rwbytes for when Stream is std::istream (data is a pointer to non-const, s.read is used)
-    template <class Stream, typename std::enable_if_t<std::is_same_v<Stream, std::istream>>* = nullptr>
-    void rwbytes(Stream &s, auto *const data, const size_t size) {
+    void rwbytes(std::istream &s, auto *const data, const size_t size) {
         s.read(reinterpret_cast<char *const>(data), sizeof(*data)*size);
     }
 
     // Base rwbytes for when Stream is std::ostream (data is a pointer to const, s.write is used)
-    template <class Stream, typename std::enable_if_t<std::is_same_v<Stream, std::ostream>>* = nullptr>
-    void rwbytes(Stream &s, const auto *const data, const size_t size) {
+    void rwbytes(std::ostream &s, const auto *const data, const size_t size) {
         s.write(reinterpret_cast<const char *const>(data), sizeof(*data)*size);
     }
 
@@ -58,10 +56,10 @@ namespace {
 
 
 // Regular read_bytes and write_bytes functions: forward all args to rwbytes using the appropriate stream type
-auto read_bytes     (auto && ...args) { return rwbytes<std::istream, non_throwing>(args...); }
-auto try_read_bytes (auto && ...args) { return rwbytes<std::istream,     throwing>(args...); }
-auto write_bytes    (auto && ...args) { return rwbytes<std::ostream, non_throwing>(args...); }
-auto try_write_bytes(auto && ...args) { return rwbytes<std::ostream,     throwing>(args...); }
+auto read_bytes     (auto &&...args) { return rwbytes<std::istream, non_throwing>(args...); }
+auto try_read_bytes (auto &&...args) { return rwbytes<std::istream,     throwing>(args...); }
+auto write_bytes    (auto &&...args) { return rwbytes<std::ostream, non_throwing>(args...); }
+auto try_write_bytes(auto &&...args) { return rwbytes<std::ostream,     throwing>(args...); }
 
 // readbytes that takes no pointer, instead returning a value of type T
 template <class T, Throwing t=non_throwing>
